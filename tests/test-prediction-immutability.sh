@@ -133,6 +133,24 @@ else
   fail "appending to retro section passes" "should allow retro appends"
 fi
 
+# Test 10: JSON format — prediction content edit blocked
+JSON_PRED_EDIT='{"tool":"Edit","file":"predictions/test-task.md","arguments":{"old_string":"预计耗时 | 15-20 min","new_string":"预计耗时 | 5-10 min"}}'
+HOOK_EXIT=0
+echo "$JSON_PRED_EDIT" | bash "$HOOK_SH" "predictions/test-task.md" "Edit" 2>/dev/null || HOOK_EXIT=$?
+if [[ "$HOOK_EXIT" -ne 0 ]]; then
+  pass "JSON: prediction content edit blocked"
+else
+  fail "JSON: prediction content edit blocked" "should exit non-zero"
+fi
+
+# Test 11: JSON format — retro content edit allowed
+JSON_RETRO_EDIT='{"tool":"Edit","file":"predictions/test-task.md","arguments":{"old_string":"实际耗时: 20min","new_string":"实际耗时: 25min"}}'
+if echo "$JSON_RETRO_EDIT" | bash "$HOOK_SH" "predictions/test-task.md" "Edit" 2>/dev/null; then
+  pass "JSON: retro content edit allowed"
+else
+  fail "JSON: retro content edit allowed" "should exit 0"
+fi
+
 echo ""
 echo "---"
 echo "Results: $PASS passed, $FAIL failed"

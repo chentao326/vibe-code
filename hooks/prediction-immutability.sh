@@ -3,65 +3,82 @@
 # Blocks edits that modify the prediction section of predictions/*.md files.
 # The prediction section (## 预估 ...) is immutable; only the retro section (## 复盘) can be edited.
 #
-# Bypass for formatting fixes: CHEAT_BYPASS_IMMUTABILITY=1
+# Supports two input formats on stdin:
+#   Format A (diff): unified diff from git diff or test harness — processed with hunk tracking
+#   Format B (JSON):  PreToolUse hook input — parsed for file path + content changes
+#   Auto-detection: stdin starting with '{' is treated as JSON, otherwise diff
+#
+# Bypass: CHEAT_BYPASS_IMMUTABILITY=1
 
 set -euo pipefail
 
-FILE="$1"
-ACTION="$2"
+FILE="${1:-}"
+ACTION="${2:-}"
 
-# Match predictions/ directory anywhere in the path (handles both relative and absolute)
+# Match predictions/ directory anywhere in the path
 if [[ ! "$FILE" =~ predictions/ ]]; then
   exit 0
 fi
 
-# Read proposed change from stdin
 PROPOSED=$(cat)
 
-# Determine which section each changed line belongs to.
-# We scan the diff for @@ hunk headers and check whether changed lines
-# (starting with + or -) fall before or after a prediction/retro marker.
-#
-# Algorithm:
-# 1. Find all section boundary line numbers from the diff context
-# 2. For each + or - line, determine which section it's in
-# 3. If any change touches the prediction section (not retro), block it
+# ── Format B: JSON (PreToolUse hook input) ──
+if [[ "$PROPOSED" =~ ^[[:space:]]*\{ ]]; then
+  # Extract file from JSON
+  JSON_FILE=$(echo "$PROPOSED" | grep -oE '"file"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"\([^"]*\)"$/\1/')
+  [[ -n "$JSON_FILE" && ! "$JSON_FILE" =~ predictions/ ]] && exit 0
 
-# Collect deleted (-) and added (+) lines that are NOT section headers themselves
+  # Extract old_string and new_string from arguments
+  OLD_STR=$(echo "$PROPOSED" | grep -oE '"old_string"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"old_string"\s*:\s*"//' | sed 's/"$//')
+  NEW_STR=$(echo "$PROPOSED" | grep -oE '"new_string"\s*:\s*"[^"]*"' | head -1 | sed 's/.*"new_string"\s*:\s*"//' | sed 's/"$//')
+
+  # Check if old_string or new_string touches prediction marker content
+  # If either string contains text that sits between ## 预估 and ## 复盘
+  COMBINED="${OLD_STR:-}${NEW_STR:-}"
+  if echo "$COMBINED" | grep -qE '(预计对话轮次|预计耗时|Bug 风险|预期满意度|综合分|概率分布|关键假设|Composite|\*\*综合分|任务快照)'; then
+    if [[ "${CHEAT_BYPASS_IMMUTABILITY:-0}" == "1" ]]; then
+      echo "⚠️  IMMUTABILITY BYPASSED for $FILE"
+      exit 0
+    fi
+    echo "❌ IMMUTABILITY VIOLATION: Cannot modify prediction section of $FILE"
+    echo "   Detected prediction content in proposed change."
+    echo "   Bypass: set CHEAT_BYPASS_IMMUTABILITY=1"
+    exit 1
+  fi
+
+  # Also block if the section header itself is being modified
+  if echo "$COMBINED" | grep -qE '## 预估'; then
+    if [[ "${CHEAT_BYPASS_IMMUTABILITY:-0}" == "1" ]]; then
+      echo "⚠️  IMMUTABILITY BYPASSED for $FILE"
+      exit 0
+    fi
+    echo "❌ IMMUTABILITY VIOLATION: Cannot modify prediction section of $FILE"
+    echo "   Prediction header '## 预估' detected in proposed change."
+    exit 1
+  fi
+
+  exit 0
+fi
+
+# ── Format A: Diff ──
+
 CHANGED_LINES=$(echo "$PROPOSED" | { grep -E '^[+-]' || true; } | { grep -vE '^[+-]{3}' || true; } | { grep -vE '^[+-]{2}\s*#' || true; })
 
 if [[ -z "$CHANGED_LINES" ]]; then
   exit 0
 fi
 
-# Check if any changed line is a prediction-related marker being edited
-# These are section headers that define the immutability boundary
-PRED_MARKERS=$(echo "$PROPOSED" | grep -E '^[+-]\s*##\s*预估' || true)
-RETRO_MARKERS=$(echo "$PROPOSED" | grep -E '^[+-]\s*##\s*复盘' || true)
-
-# Use hunk context to determine section for each changed line.
-# A hunk like: @@ -5,7 +5,7 @@
-# means the original file's line 5-11 maps to new file's line 5-11.
-# We track what section each line range falls into.
-
-# Simpler approach: for each hunk, extract the context lines (no prefix = unchanged context)
-# and check if they contain prediction or retro markers. Then classify the hunk.
-
-# Extract hunks and classify each
 CURRENT_SECTION="unknown"
 HAS_VIOLATION=false
 
 while IFS= read -r line; do
-  # Track hunk headers: @@ -old_start,old_count +new_start,new_count @@
   if [[ "$line" =~ ^@@\ +-[0-9]+ ]]; then
     CURRENT_SECTION="unknown"
     continue
   fi
 
-  # Skip file headers
   [[ "$line" =~ ^(---|\+\+\+) ]] && continue
 
-  # Context lines (no prefix) define the section for subsequent changes
   if [[ "$line" =~ ^[[:space:]]*##\ 预估\ v[0-9]+ ]]; then
     CURRENT_SECTION="prediction"
     continue
@@ -71,9 +88,7 @@ while IFS= read -r line; do
     continue
   fi
 
-  # Check if this is a changed line (+ or -) in prediction section
   if [[ "$line" =~ ^[+-] ]] && [[ "$CURRENT_SECTION" == "prediction" ]]; then
-    # Ignore if the change is just whitespace or the section header itself
     content="${line:1}"
     if [[ ! "$content" =~ ^[[:space:]]*##\ 预估 ]]; then
       HAS_VIOLATION=true
@@ -82,27 +97,21 @@ while IFS= read -r line; do
   fi
 done <<< "$PROPOSED"
 
-# Fallback: if we couldn't track sections via context lines, check if the diff
-# shows prediction markers being modified directly
+# Fallback: direct diff scan
 if ! $HAS_VIOLATION; then
-  # Check for +/- lines containing prediction content if we see prediction context
   IN_PRED_SECTION=false
   while IFS= read -r line; do
     if [[ "$line" =~ ^[[:space:]]*(##\ 预估\ v[0-9]+) ]]; then
-      IN_PRED_SECTION=true
-      continue
+      IN_PRED_SECTION=true; continue
     fi
     if [[ "$line" =~ ^[[:space:]]*(##\ 复盘) ]]; then
-      IN_PRED_SECTION=false
-      continue
+      IN_PRED_SECTION=false; continue
     fi
     if $IN_PRED_SECTION && [[ "$line" =~ ^[+-] ]]; then
       content="${line:1}"
-      # Skip empty lines and section headers
       [[ -z "${content// }" ]] && continue
       [[ "$content" =~ ^[[:space:]]*## ]] && continue
-      HAS_VIOLATION=true
-      break
+      HAS_VIOLATION=true; break
     fi
   done <<< "$PROPOSED"
 fi
