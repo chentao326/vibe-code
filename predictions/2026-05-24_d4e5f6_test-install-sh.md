@@ -110,3 +110,5 @@
 这次最有趣的是 grep bug——和 task 1 的 pipefail 问题同一个根因（Bash CLI 参数的隐式行为），两次都命中了。我已经学会在测试里加 `|| true` 和 `--`，但每个新脚本仍然可能踩新坑。这验证了 AM=2 的判断：Bash 的领域知识密度高，需要"踩坑经验"而非纯粹推理。
 
 另一个观察：连续 3 个盲预估都没有重大翻车（偏差方向从低估→全中→全中），说明 v0 等权公式在项目早期就给出了合理的难度排序。虽然 calibration_samples 才 3，但 rubric 的"方向感"已经比 🔴 极低时期好很多。
+
+**Re-scored under v1 on 2026-05-24**: composite recalculated with CX×1.5 + TE×1.5 formula.

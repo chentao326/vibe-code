@@ -40,3 +40,5 @@
 - 测试暴露了 lint-collector 的真实 bug：tool=none 时 `LINT_OUTPUT=""` 导致 `"output": ` 无值，JSON 非法。修了 1 行。
 - 第 2 个 bug 是测试自身：PATH="$EMPTY_BIN" 太干净导致 mkdir 找不到。补充 /bin:/usr/bin。
 - CX=1 连续第 4 个全中：该模式的预估精度已稳定。
+
+**Re-scored under v1 on 2026-05-24**: composite recalculated with CX×1.5 + TE×1.5 formula.

@@ -113,3 +113,5 @@
 唯一意外的是 emoji——我写 CLAUDE.md 时完全忘了"不含 emoji"这条约束，因为项目其他文件（README、SKILL.md）大量使用 emoji。这说明"不含 emoji"这个约束和项目整体风格不一致——验收标准本身值得商榷。
 
 不过更重要的是：连续两个盲预估都没有严重翻车（第 1 个轮次低估 25%，第 2 个全中），说明 v0 rubric 的等权公式在没有历史数据的情况下仍然给出了合理的难度排序。第 1 个任务 7.6（更难）vs 第 2 个任务 6.8（更简单），执行结果也验证了这个排序。
+
+**Re-scored under v1 on 2026-05-24**: composite recalculated with CX×1.5 + TE×1.5 formula.

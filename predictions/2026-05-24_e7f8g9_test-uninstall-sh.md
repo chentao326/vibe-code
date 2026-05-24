@@ -62,3 +62,5 @@
 - 又被 grep 模式匹配坑了一次——uninstall.sh 的 SKILLS 是 inline 格式 `(a b c)` 而非每行一个，`grep '^\s+vibe-'` 匹配不到。Bash 文本格式差异是 AM=2 的稳定证据。
 - HOME override mock 策略证明有效——9 个测试全部通过，无副作用。
 - CX=1 连续第 3 个全中任务：CLAUDE.md / test-install / test-uninstall 全部指标命中。
+
+**Re-scored under v1 on 2026-05-24**: composite recalculated with CX×1.5 + TE×1.5 formula.

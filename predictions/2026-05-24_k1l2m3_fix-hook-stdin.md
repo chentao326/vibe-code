@@ -37,3 +37,5 @@
 - 新增 JSON 格式检测 + 2 个测试用例，原有 9 个测试全部保留通过
 - grep/sed 解析 JSON 的策略有效：匹配文件路径 + old_string/new_string 做关键词检测
 - CX=1 连续第 5 个全中——单文件任务预估已完全稳定
+
+**Re-scored under v1 on 2026-05-24**: composite recalculated with CX×1.5 + TE×1.5 formula.
