@@ -1,0 +1,11 @@
+{
+  "name": "prediction-immutability",
+  "description": "Blocks edits to prediction sections in predictions/*.md files",
+  "events": ["PreToolUse"],
+  "matchers": [
+    {"tool": "Edit"},
+    {"tool": "Write"}
+  ],
+  "file_pattern": "predictions/*.md",
+  "command": "bash .vibe-hooks/prediction-immutability.sh"
+}

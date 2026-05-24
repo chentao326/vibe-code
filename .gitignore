@@ -1,0 +1,6 @@
+.vibe-cache/
+*.pyc
+__pycache__/
+.DS_Store
+retros/*/
+.vibe-state.json

@@ -1,0 +1,6 @@
+{
+  "name": "meta-logging",
+  "description": "Passively logs session events for analytics",
+  "events": ["SessionEnd", "PostToolUse"],
+  "command": "bash .vibe-hooks/log-event.sh"
+}

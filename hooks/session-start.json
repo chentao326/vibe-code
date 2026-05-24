@@ -1,0 +1,6 @@
+{
+  "name": "session-start",
+  "description": "Renders vibe-code status at start of each conversation",
+  "events": ["SessionStart"],
+  "command": "bash .vibe-hooks/session-start.sh"
+}
