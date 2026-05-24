@@ -1,16 +1,88 @@
-# Vibe Code
+<h2 align="center">Vibe Code</h2>
 
-**Turn vibe coding into a calibrated experiment.**
+<p align="center">
+For developers who use AI coding assistants — a skill that turns every task into a calibrated experiment.
+</p>
 
-You tell your AI "this should be easy" — how often are you right? Vibe Code answers that question with data by turning every AI coding session into a closed-loop experiment.
+<p align="center">
+You say "this task should be easy." You've said it a hundred times.<br>
+How many times were you right? You don't know — because you never kept books.<br>
+Vibe Code keeps them for you. One month in, your judgment has data behind it.<br>
+Three months in, your prompt intuition is 10× sharper than day one.
+</p>
+
+<p align="center">
+  <a href="README.md"><strong>简体中文</strong></a>
+  &nbsp;·&nbsp;
+  <strong>English</strong>
+</p>
+
+<p align="center">
+<a href="CHANGELOG.md"><img src="https://img.shields.io/badge/rubric-v1-success" alt="Rubric v1"></a>
+&nbsp;
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+&nbsp;
+<a href="#"><img src="https://img.shields.io/badge/tests-70%2F70-brightgreen" alt="Tests"></a>
+&nbsp;
+<a href="#"><img src="https://img.shields.io/badge/calibration-6_samples-ff69b4" alt="Calibration"></a>
+</p>
 
 ---
 
-## One-liner
+## What it does
 
-```
-Assess → Blind-predict → Code → Retro → Evolve your judgment
-```
+Most AI coding users live in the same loop:
+
+> Prompt → AI generates → works / doesn't → wing it next time
+
+A developer who's used AI coding for six months is barely sharper than someone on day one — because they never **retro'd** a single task.
+
+**Vibe Code** turns every coding session into a traceable experiment:
+
+Assess → Blind-predict → Code → Retro → Evolve your rubric
+
+This isn't productivity theater. It's **compounding** — every task you don't retro is silently eroding your ability to see yourself.
+
+---
+
+## Origin
+
+> I built a content creation toolkit that used "blind-predict → retro → evolve the formula." It took me from zero to 1M followers in a month.
+>
+> Then I realized: the methodology isn't content-specific. It works for any workflow that can be broken into "task → execute → retro."
+>
+> So I built Vibe Code. It ports the calibration engine from content creation to software engineering — assess task difficulty, predict rounds and time, settle the books after coding, and let the model evolve with your data.
+>
+> After three months, your guess about "how long will this take" is no longer a guess. It's data.
+>
+> — *ported from cheat-on-content*
+
+---
+
+## How it differs from other AI coding tools
+
+| Other tools | Vibe Code |
+|---|---|
+| Write code for you | **Judge** what good code looks like |
+| AI does the work | AI **assesses** the work — you still execute |
+| Task done, move on | Task done is the beginning — predicted vs. actual, **deviation logged** |
+| Each session is siloed | An **evolving rubric** — v1 ≠ v0, and v2 won't equal v1 |
+
+In a sentence: other tools help you "ship faster." This helps you "judge sharper."
+
+---
+
+## Why the rubric actually evolves
+
+Every completed task feeds its deviation analysis into the rubric. Three same-direction misses in a row, and the tool nudges you to upgrade the scoring formula. Upgrades require:
+
+- Full historical rescore
+- Rank consistency ≥ 80%
+- Cross-model independent audit
+
+**You're not guessing alone — the model remembers, settles, and evolves for you.**
+
+Observations refuted by data get deleted. Observations absorbed into formal dimensions also get deleted. The rubric only holds what's most useful right now.
 
 ---
 
@@ -23,102 +95,59 @@ bash install.sh        # Claude Codex (default)
 bash install.sh --all  # Codex + Claude Code + Cursor
 ```
 
----
+13 sub-skills are symlinked into your agent's skill directory. One install, every project gets it.
 
-## Quick Start
+**Supported agents**: Claude Code (default) · Codex · Cursor
 
-In your project directory, say `初始化 vibe-code` (init vibe-code). Five questions and you're set up.
-
-Then follow this loop for every task:
-
-```
-1. Write task     tasks/xxx.md
-2. Assess         Score + blind prediction (locked on save)
-3. Code           AI does the work
-4. Retro          Predicted vs. actual, deviation analysis
-5. Bump           Evolve the formula after 5+ retro samples
-```
+> Frozen version: `bash install.sh --copy`
+>
+> Uninstall: `bash uninstall.sh` (your project data is not touched)
 
 ---
 
-## Current Status
+## First run
+
+In your project directory, open Claude Code / Codex and say:
+
+```
+初始化 vibe-code
+```
+
+New projects go through a standard 5-question onboarding. Projects with git history are auto-detected and offered historical task import — giving the rubric an anchor from day one.
+
+---
+
+## Daily use
+
+```
+评估这个任务 tasks/xxx.md   → score + blind prediction (before coding, locked on save)
+code                        → AI does the work
+复盘                        → collect git data, predicted vs. actual
+升级模型                     → evolve formula (needs ≥5 calibration samples)
+
+status / find topic / recommend / trends / profile / quick score
+```
+
+With hooks installed, WIP + pending retros + bump alerts show at every session start. Full workflow: [SKILL.md](SKILL.md).
+
+---
+
+## Current status
 
 | Metric | Value |
-|--------|-------|
+|---|---|
 | Rubric | v1 (CX×1.5 + TE×1.5) |
 | Calibration pool | 6 blind-prediction samples |
-| Confidence | 🟢 Medium |
-| Tests | 70/70 passing |
 | Spearman ρ | −0.893 |
-
-### Rubric v1 Formula
-
-```
-composite = (CS×1.0 + CX×1.5 + TE×1.5 + AM×1.0 + AQ×1.0) / 6.0 × 2.0
-```
-
-Five dimensions: CS (Clarity of Spec), CX (Cross-cutting Impact), TE (Testability), AM (Ambiguity), AQ (Agent Quality Match).
-
----
-
-## Command Reference
-
-### Core Loop
-
-| Command | Description |
-|---------|-------------|
-| `初始化 vibe-code` | First-time onboarding |
-| `评估这个任务 tasks/xxx.md` | Score + blind prediction (before coding) |
-| `复盘` | Compare prediction vs. actual |
-| `升级模型` | Evolve formula (needs ≥5 calibration samples) |
-
-### Auxiliary
-
-| Command | Description |
-|---------|-------------|
-| `状态` | Dashboard: WIP / pool / accuracy / bump alerts |
-| `找选题` | Scan codebase for TODOs, test gaps, stale deps |
-| `打分这篇 tasks/xxx.md` | Quick score (console only, no file written) |
-| `推荐任务` | Priority recommendations |
-| `趋势` | Security advisories + dependency updates |
-| `分析项目` | Codebase profile (hotspots, coverage, deps) |
-| `学这个项目 <url>` | Learn from a reference open-source project |
-| `迁移` | Upgrade state schema |
-
----
-
-## Key Concepts
-
-| Concept | Meaning |
-|---------|---------|
-| Blind prediction | Prediction written before coding, physically immutable |
-| Rubric | 5-dimension evaluation model that evolves with data |
-| Calibration pool | All blind-predicted + retro'd tasks — the bump validation set |
-| Confidence | Current model reliability, honestly labeled |
-| Bump | Formula upgrade — full rescore + rank consistency ≥80% + cross-model audit |
-
----
-
-## Project Structure
-
-```
-skills/vibe-*/     — 13 sub-skills
-shared-references/ — 7 protocol docs
-adapters/          — Data collectors (git-stats, time-tracker, lint-collector)
-hooks/             — prediction-immutability + session-start
-templates/         — 7 scaffold templates
-tests/             — 7 test scripts (70 cases)
-CLAUDE.md          — AI project instructions
-```
-
----
-
-## Why not another project management tool
-
-Jira and Linear track *what* to do. Vibe Code tracks *how you judge*. One manages deadlines; the other manages judgment accuracy. One is static configuration for humans; the other is a self-evolving model for AI agents.
+| Tests | 70/70 passing |
 
 ---
 
 ## License
 
-MIT
+MIT. Commercial use, modification, closed-source integration — all fine.
+
+---
+
+*Is this over-engineering? So was writing tests. So was code review.*
+*The future doesn't reward those who code fastest — it rewards those who judge sharpest.*
