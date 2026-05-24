@@ -30,5 +30,6 @@ elif command -v golangci-lint &>/dev/null; then
   LINT_OUTPUT=$(cd "$PROJECT_ROOT" && golangci-lint run --out-format json ./... 2>/dev/null || echo "[]")
 fi
 
+LINT_OUTPUT="${LINT_OUTPUT:-[]}"
 echo "{\"tool\": \"$TOOL\", \"output\": $LINT_OUTPUT}" > "$RETRO_DIR/lint-report.json"
 echo "lint report written to $RETRO_DIR/lint-report.json (tool: $TOOL)"
