@@ -33,7 +33,7 @@ Vibe Code 把每一次 AI 编码变成闭环实验：
 ## 安装
 
 ```bash
-git clone https://github.com/XBuilderLAB/vibe-code.git
+https://github.com/chentao326/vibe-code.git
 cd vibe-code
 bash install.sh        # Codex（默认）
 # 或
