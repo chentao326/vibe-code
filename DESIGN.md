@@ -1,7 +1,7 @@
 # Vibe Code — 工程设计文档
 
-> 版本：v0.1.0-draft
-> 状态：设计阶段
+> 版本：v1.0.1
+> 状态：已发布
 > 基于：[cheat-on-content](https://github.com/XBuilderLAB/cheat-on-content) 方法论移植
 
 ---

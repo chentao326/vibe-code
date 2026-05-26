@@ -5,3 +5,5 @@ __pycache__/
 retros/*/
 .vibe-state.json
 .vibe-hooks/
+handoff/
+*.pptx
