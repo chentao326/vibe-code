@@ -18,7 +18,7 @@
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "skill_version": "1.0.0",
 
   "rubric_version": "v0",
@@ -54,6 +54,11 @@
 
   "in_progress_assessment": null,
 
+  "handoff_mode": "self-handoff",
+  "handoff_phase": "init",
+  "handoff_feature": null,
+  "last_handoff_signal_at": null,
+
   "initialized_at": "2026-05-24T15:00:00+08:00"
 }
 ```
@@ -77,6 +82,10 @@
 | `wip_tasks` | object[] | vibe-assess/retro | 进行中的任务 |
 | `pending_retros` | string[] | vibe-assess/retro | 待复盘的任务 ID |
 | `in_progress_assessment` | object\|null | vibe-assess/retro | 当前评估中的任务 |
+| `handoff_mode` | string | vibe-init | claude-handoff / self-handoff / none |
+| `handoff_phase` | string | handoff skills + vibe-retro | 当前 handoff 阶段 |
+| `handoff_feature` | string\|null | handoff skills | 当前 feature 名称 |
+| `last_handoff_signal_at` | string\|null | handoff skills | 最后一次信号写入时间 |
 
 ---
 

@@ -25,6 +25,8 @@ Three months in, your prompt intuition is 10× sharper than day one.
 <a href="#"><img src="https://img.shields.io/badge/tests-70%2F70-brightgreen" alt="Tests"></a>
 &nbsp;
 <a href="#"><img src="https://img.shields.io/badge/calibration-6_samples-ff69b4" alt="Calibration"></a>
+&nbsp;
+<a href="#"><img src="https://img.shields.io/badge/handoff-v1.0-blue" alt="Handoff"></a>
 </p>
 
 ---
@@ -86,6 +88,26 @@ Observations refuted by data get deleted. Observations absorbed into formal dime
 
 ---
 
+## Built-in Handoff Protocol
+
+Vibe Code includes two **AI coding collaboration protocols** that bring discipline and traceability to your workflow:
+
+| Protocol | Description | Trigger |
+|---|---|---|
+| **codex-self-handoff** | Codex runs the full 6-phase pipeline solo (Spec→Plan→Build→Review→Polish→Commit) | "self-handoff" / "自交接" |
+| **codex-claude-handoff** | Codex + Claude Code dual-tool collab (Codex builds, Claude designs + reviews) | "handoff" / "交接" |
+
+**Fused with the calibration loop**: handoff's 6 phases anchor vibe-code's actions:
+
+```
+handoff: Spec → Plan → Build → Review → Polish → Commit
+           │       │       │        │         │        │
+vibe:   assess  score    —      retro      —    bump-check
+```
+
+See [handoff-vibe-bridge.md](shared-references/handoff-vibe-bridge.md).
+
+
 ## Install
 
 ```bash
@@ -95,7 +117,7 @@ bash install.sh        # Claude Codex (default)
 bash install.sh --all  # Codex + Claude Code + Cursor
 ```
 
-13 sub-skills are symlinked into your agent's skill directory. One install, every project gets it.
+15 sub-skills (13 vibe-code + 2 handoff) are symlinked into your agent's skill directory. One install, every project gets it.
 
 **Supported agents**: Claude Code (default) · Codex · Cursor
 
@@ -107,25 +129,34 @@ bash install.sh --all  # Codex + Claude Code + Cursor
 
 ## First run
 
-In your project directory, open Claude Code / Codex and say:
+In your project directory, open Codex / Claude Code and say:
 
 ```
 初始化 vibe-code
 ```
 
-New projects go through a standard 5-question onboarding. Projects with git history are auto-detected and offered historical task import — giving the rubric an anchor from day one.
+New projects go through standard 5-question onboarding. Git history is auto-detected for historical import.
+
+Then jump straight in:
+
+```
+self-handoff — build a user login feature
+```
+
+Codex runs the full 6-phase pipeline (Spec→Plan→Build→Review→Polish→Commit), triggering vibe calibration at key checkpoints (assess → code → retro).
 
 ---
 
 ## Daily use
 
 ```
-评估这个任务 tasks/xxx.md   → score + blind prediction (before coding, locked on save)
-code                        → AI does the work
-复盘                        → collect git data, predicted vs. actual
-升级模型                     → evolve formula (needs ≥5 calibration samples)
+self-handoff              → full 6-phase pipeline (vibe calibration + handoff discipline)
+assess tasks/xxx.md       → score + blind prediction (before coding, locked on save)
+code                      → AI does the work
+retro                     → auto-detects build-done, collects git data, predicted vs. actual
+bump rubric               → evolve formula (needs ≥5 calibration samples)
 
-status / find topic / recommend / trends / profile / quick score
+status / find topics / recommend / trends / profile / quick score
 ```
 
 With hooks installed, WIP + pending retros + bump alerts show at every session start. Full workflow: [SKILL.md](SKILL.md).
@@ -139,6 +170,8 @@ With hooks installed, WIP + pending retros + bump alerts show at every session s
 | Rubric | v1 (CX×1.5 + TE×1.5) |
 | Calibration pool | 6 blind-prediction samples |
 | Spearman ρ | −0.893 |
+| Handoff | codex-self-handoff + codex-claude-handoff |
+| Skills | 15 (13 vibe + 2 handoff) |
 | Tests | 70/70 passing |
 
 ---

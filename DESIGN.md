@@ -1,6 +1,6 @@
 # Vibe Code — 工程设计文档
 
-> 版本：v1.0.1
+> 版本：v1.1.0
 > 状态：已发布
 > 基于：[cheat-on-content](https://github.com/XBuilderLAB/cheat-on-content) 方法论移植
 
@@ -18,7 +18,8 @@
 8. [协议设计](#8-协议设计)
 9. [Adapter 设计](#9-adapter-设计)
 10. [Hook 设计](#10-hook-设计)
-11. [实施路线图](#11-实施路线图)
+11. [与 Handoff 协议的集成](#11-与-handoff-协议的集成)
+12. [实施路线图](#12-实施路线图)
 12. [风险与局限](#12-风险与局限)
 13. [附录：与 cheat-on-content 的差异对照](#13-附录)
 
@@ -1013,9 +1014,75 @@ Phase 3: 写入 benchmark.md
 
 ---
 
-## 11. 实施路线图
+## 11. 与 Handoff 协议的集成
 
-### 11.1 里程碑
+### 11.1 为什么需要 Handoff
+
+vibe-code 解决"做得怎么样"，但缺少"何时做"的阶段纪律。handoff 协议提供 6 阶段状态机（Spec→Plan→Build→Review→Polish→Commit），通过 `handoff/` 目录中的 JSON 信号文件强制执行阶段顺序。
+
+两个系统的关系是**分层协作**，不是替代：
+
+```
+┌──────────────────────────────────────┐
+│         vibe-code（校准层）            │
+│  assess → predict → retro → bump     │
+│  "这个任务多难？我预估准不准？"        │
+├──────────────────────────────────────┤
+│       handoff protocol（纪律层）       │
+│  Spec → Plan → Build → Review → ...  │
+│  "现在谁在做什么？下一步该谁？"        │
+└──────────────────────────────────────┘
+```
+
+### 11.2 两套 Handoff 协议
+
+| 协议 | Skill 路径 | 角色分配 |
+|---|---|---|
+| `codex-self-handoff` | `skills/codex-self-handoff/` | Codex 一人分饰 Architect + Builder |
+| `codex-claude-handoff` | `skills/codex-claude-handoff/` | Codex（Builder）+ Claude Code（Architect） |
+
+### 11.3 Phase → Vibe 动作映射
+
+| Handoff 阶段 | 触发 vibe 动作 | 说明 |
+|---|---|---|
+| Spec | vibe-assess | 写 spec 前盲评估任务 |
+| Plan | vibe-score（可选） | 对子任务快速打分排序 |
+| Build | — | 编码执行 |
+| Build Done | vibe-retro | 自动感知 build-done.json → 复盘 |
+| Commit | vibe-bump 条件检查 | 检查校准池是否该升级 |
+
+### 11.4 融合协议
+
+详见 `shared-references/handoff-vibe-bridge.md`。核心规则：
+
+1. **盲预估不可破坏**：handoff plan-ready.json 存在 → vibe-assess 拒绝
+2. **阶段不可跳过**：handoff 的 6 阶段顺序不可变
+3. **复盘必须执行**：build-done 后自动触发 vibe-retro
+4. **状态联合同步**：`.vibe-state.json` 与 `handoff/` 信号文件双向同步
+
+### 11.5 信号文件状态机
+
+```
+plan-ready.json  →  Builder 编码 → build-done.json
+                                        │
+                                 ┌──────┴──────┐
+                                 ↓              ↓
+                          review-passed   review-fixes
+                                 │              │
+                                 ↓              ↓
+                             Commit      polish-done
+                                                │
+                                          ┌─────┴─────┐
+                                          ↓           ↓
+                                   review-passed  review-fixes
+```
+
+完整 schema 见 `skills/codex-self-handoff/references/protocol.md`。
+
+
+## 12. 实施路线图
+
+### 12.1 里程碑
 
 ```
 Milestone 1: 最小闭环（MVP）
@@ -1047,7 +1114,7 @@ Milestone 5: 高级功能
 → 对标学习 + 智能推荐
 ```
 
-### 11.2 文件级实施顺序
+### 12.2 文件级实施顺序
 
 ```
 Phase 1 (基础框架):
@@ -1081,7 +1148,7 @@ Phase 5 (体验完善):
   20. CHANGELOG.md                      ← 版本日志
 ```
 
-### 11.3 每步的前置依赖
+### 12.3 每步的前置依赖
 
 | 步骤 | 依赖 |
 |---|---|
@@ -1099,9 +1166,9 @@ Phase 5 (体验完善):
 
 ---
 
-## 12. 风险与局限
+## 13. 风险与局限
 
-### 12.1 已知风险
+### 13.1 已知风险
 
 | 风险 | 影响 | 缓解措施 |
 |---|---|---|
@@ -1112,14 +1179,14 @@ Phase 5 (体验完善):
 | **校准池冷启动** | 前 5-10 个任务 confidence 低，rubric 基本是猜测 | 诚实标注低 confidence；建议导入对标项目加速 |
 | **adapters 脆弱** | lint 工具版本更新可能改变输出格式 | lint-collector 解析 lint 工具的 JSON/机器可读输出，不用人类可读格式 |
 
-### 12.2 已知局限
+### 13.2 已知局限
 
 1. **不追踪"失败的原因"**：如果 AI 生成的代码被拒绝，系统只知道"迭代次数多"，不知道是因为"prompt 写得不好"还是"任务本身就模糊"
 2. **只追踪文件级变更**：不追踪"认知负荷"（如理解代码库的时间）
 3. **rubric 维度是预定义的**：可能存在未被维度覆盖的重要信号
 4. **单用户系统**：不做跨用户对比，不建基准数据库
 
-### 12.3 与 cheat-on-content 的关键差异
+### 13.3 与 cheat-on-content 的关键差异
 
 | 维度 | cheat-on-content | vibe-code |
 |---|---|---|
@@ -1133,9 +1200,9 @@ Phase 5 (体验完善):
 
 ---
 
-## 13. 附录
+## 14. 附录
 
-### 13.1 术语对照
+### 14.1 术语对照
 
 | 缩写 | 全称 | 含义 |
 |---|---|---|
@@ -1147,7 +1214,7 @@ Phase 5 (体验完善):
 | WIP | Work In Progress | 进行中的任务 |
 | Bump | — | 升级评估模型 |
 
-### 13.2 设计决策记录
+### 14.2 设计决策记录
 
 | 决策 | 理由 |
 |---|---|

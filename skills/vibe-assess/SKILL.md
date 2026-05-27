@@ -18,6 +18,7 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Task
 
 ```
 Phase 0: Blind check 自检
+Phase 0.1: Handoff phase check（融合）
 Phase 0.5: 解析输入路径
 Phase 1: 读 task + rubric + state
 Phase 2: 委派盲打分 sub-agent（Task tool）
@@ -46,6 +47,23 @@ Phase 6: 落盘 + 更新 state
 1. 任务是否已开始编码？→ 是 → **拒绝**
 2. 对话里是否提到任何执行结果？→ 是 → **拒绝**
 3. 通过 → 继续
+
+
+### Phase 0.1: Handoff phase check（融合协议）
+
+根据 [handoff-vibe-bridge.md](../../shared-references/handoff-vibe-bridge.md) 检测当前 handoff 阶段：
+
+```bash
+ls handoff/*.json 2>/dev/null || echo "NO_FILES"
+```
+
+| handoff 状态 | 处理 |
+|---|---|
+| `handoff/plan-ready.json` 存在 | **拒绝**——spec 和 plan 已完成，评估已不盲。提示用户走 `vibe-retro` |
+| `handoff/build-done.json` 存在 | **拒绝**——编码已执行，数据已泄露 |
+| `handoff/` 有其他信号文件 | 警告 + 标注 `handoff_mid_cycle: true` + 继续 |
+| `handoff/` 为空 | ✅ 通过——可以评估。完成后提示"可以开始写 spec，说'交接'启动 handoff" |
+
 
 ### Phase 0.5: 解析输入路径
 

@@ -26,6 +26,8 @@ SKILLS=(
   vibe-profile
   vibe-learn-from
   vibe-migrate
+  codex-claude-handoff
+  codex-self-handoff
 )
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
@@ -52,6 +54,8 @@ for arg in "$@"; do
       ;;
     --help|-h)
       echo "Usage: bash install.sh [--copy] [--codex|--claude|--cursor|--all] [--dry-run] [--list]"
+      echo ""
+      echo "Installs all 15 skills: 13 vibe-code + 2 handoff (codex-claude-handoff, codex-self-handoff)"
       echo ""
       echo "Options:"
       echo "  --copy      Copy files instead of symlinking (default: symlink)"
@@ -137,6 +141,16 @@ if $DRY_RUN; then
   echo "🔍 Dry run complete — no changes made."
 else
   echo ""
-  echo "✅ Install complete!"
-  echo "Next: cd into your project and say: 初始化 vibe-code"
+  echo "✅ Install complete! (13 vibe-code + 2 handoff skills)"
+  echo ""
+  echo "Quick start:"
+  echo "  1. cd into your project"
+  echo "  2. Say: 初始化 vibe-code"
+  echo "  3. Say: 自交接 — 走 6 阶段全流程（vibe 校准 + handoff 纪律）"
+  echo ""
+  echo "Handoff modes:"
+  echo "  自交接 (self-handoff): Codex 独自走 6 阶段"
+  echo "  交接 (claude-handoff):  Codex + Claude Code 协同"
+  echo ""
+  echo "Check handoff phase: python3 ~/.codex/skills/codex-self-handoff/scripts/check_phase.py"
 fi

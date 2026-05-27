@@ -12,9 +12,14 @@ allowed-tools: Bash(*), Read, Glob
 
 ## 工作流
 
-### Phase 1: 读取 state
+### Phase 1: 读取 state + handoff 阶段
 
-读 `.vibe-state.json` 所有字段。
+1. 读 `.vibe-state.json` 所有字段
+2. 检测 handoff 阶段：
+```bash
+ls handoff/*.json 2>/dev/null || echo "NO_FILES"
+```
+3. 将 handoff 阶段与 vibe 校准数据合并渲染
 
 ### Phase 2: 渲染看板
 
@@ -43,6 +48,42 @@ Rubric: v0 | 校准池: 5 samples | Confidence: 🟡 偏低
 ```
 
 ---
+
+## Handoff 状态（融合协议）
+
+根据 [handoff-vibe-bridge.md](../../shared-references/handoff-vibe-bridge.md) 同步显示 handoff 阶段。
+
+### 检测命令
+
+```bash
+ls handoff/*.json 2>/dev/null || echo "NO_FILES"
+```
+
+### 阶段展示
+
+| 信号文件 | 展示 |
+|---|---|
+| (无) | 🔵 Init — "等待写 spec" |
+| `plan-ready.json` | 🟡 Plan Ready — "等待编码" |
+| `build-done.json` | 🟢 Build Done — "等待 review / 可以复盘" |
+| `review-fixes.json` | 🟠 Fixes Needed — "等待修复" |
+| `polish-done.json` | 🟡 Polish Done — "等待重审" |
+| `review-passed.json` | 🟢 Review Passed — "等待提交" |
+| `committed.json` | ✅ Done — "已完成" |
+
+### 看板展示格式
+
+```
+## 🔄 Handoff 状态
+  模式: codex-self-handoff
+  阶段: build-done → 等待 review
+  Feature: post-review-fixes
+
+## 📊 Vibe 校准
+  Rubric: v1 | 校准池: 6 | Confidence: 🟢 中
+  （后续跟现有 vibe 看板内容）
+```
+
 
 ## 自动检测项
 

@@ -15,8 +15,9 @@ allowed-tools: Bash(*), Read, Write, Edit, Glob, Grep
 
 ```
 Phase 0: 确认任务状态
+Phase 0.1: Handoff phase detection（融合）
 Phase 1: 读 prediction 文件 + 缓存预估段 hash
-Phase 2: 采集实际数据（adapters + 用户输入）
+Phase 2: 采集实际数据（adapters + 用户输入 + handoff 数据）
 Phase 3: 对比预估 vs 实际
 Phase 4: 写入复盘段
 Phase 5: 校验 immutability
@@ -31,6 +32,26 @@ Phase 6: 更新 state + rubric.md
 
 1. 确认用户已完成编码（或放弃）
 2. 如放弃 → 标 `status: abandoned`，不计入 calibration_samples，但保留 prediction 文件
+
+### Phase 0.1: Handoff phase detection（融合协议）
+
+根据 [handoff-vibe-bridge.md](../../shared-references/handoff-vibe-bridge.md) 检测当前 handoff 阶段：
+
+```bash
+ls handoff/*.json 2>/dev/null || echo "NO_FILES"
+```
+
+| handoff 状态 | 处理 |
+|---|---|
+| `handoff/build-done.json` 存在 | ✅ **自动触发复盘**——无需用户手动确认。读取 `files_changed`、`completed_tasks` 作为数据源 |
+| `handoff/` 有其他文件但无 build-done | 正常复盘，标注 `handoff_phase: <当前阶段>` |
+| `handoff/` 为空 | 正常复盘，标注 `handoff_phase_unknown: true` |
+
+**如果 build-done.json 存在**：
+1. 解析 `files_changed` 列表 → 传给 Phase 2 adapters
+2. 解析 `completed_tasks` → 用于偏差分析
+3. 复盘完成后更新 `.vibe-state.json` 的 `handoff_phase` 为 `review-ready`
+
 
 ### Phase 1: 读 prediction 文件
 
