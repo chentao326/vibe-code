@@ -61,6 +61,21 @@ This isn't productivity theater. It's **compounding** — every task you don't r
 
 ---
 
+---
+
+## v1.1.0 Update (2026-05-27)
+
+Two handoff collaboration protocols are now built into Vibe Code, wired into the calibration loop:
+
+- **New** `codex-self-handoff` and `codex-claude-handoff` skills — say "self-handoff" or "handoff" to launch the 6-phase pipeline
+- **New** `handoff-vibe-bridge.md` fusion protocol — handoff phases auto-trigger vibe actions (assess before Spec, retro after Build, bump check after Commit)
+- **Upgraded** `vibe-assess` / `vibe-retro` / `vibe-status` — all now handoff-phase-aware
+- **Expanded** install script: 13 vibe + 2 handoff = 15 skills in one command
+- **Updated** DESIGN.md → v1.1.0 with §11 "Handoff Protocol Integration"
+
+[Full changelog →](CHANGELOG.md)
+
+
 ## How it differs from other AI coding tools
 
 | Other tools | Vibe Code |
